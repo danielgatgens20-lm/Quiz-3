@@ -9,10 +9,6 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)->use(RefreshDatabase::class);
 
-/*
-| Datos de prueba que se repiten (tal cual el documento)
-*/
-
 beforeEach(function () {
     $this->curso = Curso::create([
         'sigla' => 'IF6100',
@@ -59,9 +55,6 @@ function matricularEstudiantes(Grupo $grupo, Docente $consejero, int $cantidad):
     }
 }
 
-/*
-| CP-01 a CP-06
-*/
 
 test('CP-01: registrar un grupo con toda su información y su curso', function () {
     $grupoCreado = crearGrupo01($this->curso, abierto: true);
