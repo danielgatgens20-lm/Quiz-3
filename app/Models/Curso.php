@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\CursoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Curso extends Model
 {
@@ -20,5 +21,10 @@ class Curso extends Model
         return [
             'creditos' => 'integer',
         ];
+    }
+
+    public function grupos(): HasMany
+    {
+        return $this->hasMany(Grupo::class);
     }
 }

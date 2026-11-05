@@ -16,6 +16,8 @@ class Grupo extends Model
 
     public const MAX_DOCENTES = 2;
 
+    public const MIN_ESTUDIANTES = 15;
+
     protected $table = 'grupos';
 
     protected $fillable = ['numero_ciclo', 'ano', 'numero_grupo', 'abierto', 'curso_id'];
@@ -72,5 +74,20 @@ class Grupo extends Model
     public function registrarNota(Estudiante $estudiante, float $nota): void
     {
         $this->estudiantes()->updateExistingPivot($estudiante->id, ['nota' => $nota]);
+    }
+
+    public function puedeAbrirse(): bool
+    {
+        return $this->docentes()->count() >= 1
+            && $this->estudiantes()->count() >= self::MIN_ESTUDIANTES;
+    }
+
+    public function abrir(): void
+    {
+        if (! $this->puedeAbrirse()) {
+            throw new DomainException('Un grupo necesita al menos 1 docente y 15 estudiantes para abrirse.');
+        }
+
+        $this->update(['abierto' => true]);
     }
 }
