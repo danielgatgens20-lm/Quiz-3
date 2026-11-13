@@ -5,6 +5,8 @@ use App\Models\EstudianteMatriculado;
 use App\Models\Grupo;
 use Illuminate\Database\QueryException;
 
+mutates(Grupo::class);
+
 beforeEach(function () {
     $this->curso = Curso::create([
         'sigla' => 'IF6100',
@@ -133,4 +135,33 @@ test('CP-13: un estudiante no se matricula dos veces en el mismo grupo', functio
 
     $this->assertDatabaseCount('estudiantes_matriculados', 1);
     expect(Grupo::find($grupo->id)->estudiantes()->where('estudiante_id', $estudiante->id)->count())->toBe(1);
+});
+
+test('C3-01: acepta las notas en los límites del rango', function (float $nota) {
+    $grupo = crearGrupo01($this->curso);
+    $estudiante = crearEstudianteC12345(crearDocente(1001));
+    $grupo->matricular($estudiante);
+
+    $grupo->registrarNota($estudiante, $nota);
+
+    $matricula = EstudianteMatriculado::where('grupo_id', $grupo->id)
+        ->where('estudiante_id', $estudiante->id)
+        ->first();
+
+    expect($matricula->nota)->toBe($nota);
+})->with([0.0, 10.0]);
+
+test('C3-02: los atributos numéricos del grupo llegan como enteros aunque se envíen como texto', function () {
+    $grupo = Grupo::create([
+        'curso_id' => $this->curso->id,
+        'numero_ciclo' => '2',
+        'ano' => '2026',
+        'numero_grupo' => '1',
+        'abierto' => '0',
+    ]);
+
+    expect($grupo->numero_ciclo)->toBe(2)
+        ->and($grupo->ano)->toBe(2026)
+        ->and($grupo->numero_grupo)->toBe(1)
+        ->and($grupo->abierto)->toBeFalse();
 });

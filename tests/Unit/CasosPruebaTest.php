@@ -7,6 +7,8 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)->use(RefreshDatabase::class);
 
+mutates(Grupo::class);
+
 beforeEach(function () {
     $this->curso = Curso::create([
         'sigla' => 'IF6100',
