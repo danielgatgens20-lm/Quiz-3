@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\Curso;
+use App\Models\Docente;
+use App\Models\Estudiante;
+use App\Models\Grupo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,9 +18,7 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)
- // ->use(RefreshDatabase::class)
-    ->in('Feature');
+pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +46,50 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function crearGrupo01(Curso $curso, bool $abierto = false): Grupo
 {
-    // ..
+    return Grupo::create([
+        'curso_id' => $curso->id,
+        'numero_ciclo' => 2,
+        'ano' => 2026,
+        'numero_grupo' => 1,
+        'abierto' => $abierto,
+    ]);
+}
+
+function crearDocente(int $codEmpleado): Docente
+{
+    $docentes = [
+        1001 => ['Ana', 'Mora Vargas'],
+        1002 => ['Luis', 'Rojas Solano'],
+        1003 => ['Carla', 'Jiménez Araya'],
+    ];
+
+    return Docente::create([
+        'cod_empleado' => $codEmpleado,
+        'nombre_empleado' => $docentes[$codEmpleado][0],
+        'apellidos_empleado' => $docentes[$codEmpleado][1],
+    ]);
+}
+
+function matricularEstudiantes(Grupo $grupo, Docente $consejero, int $cantidad): void
+{
+    $estudiantes = Estudiante::factory()
+        ->count($cantidad)
+        ->for($consejero, 'consejero')
+        ->create();
+
+    foreach ($estudiantes as $estudiante) {
+        $grupo->matricular($estudiante);
+    }
+}
+
+function crearEstudianteC12345(Docente $consejero): Estudiante
+{
+    return Estudiante::create([
+        'carne' => 'C12345',
+        'nombre' => 'María',
+        'apellidos' => 'Solís Quesada',
+        'consejero_id' => $consejero->id,
+    ]);
 }

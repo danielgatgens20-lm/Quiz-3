@@ -52,7 +52,7 @@ test('se instancia un grupo con toda su información asociada', function () {
 
     
     foreach ($estudiantes as $estudiante) {
-        $grupo->registrarNota($estudiante, 85.5);
+        $grupo->registrarNota($estudiante, 8.5);
     }
 
     $grupo->refresh()->load(['curso', 'docentes', 'estudiantes.consejero']);
@@ -77,7 +77,7 @@ test('se instancia un grupo con toda su información asociada', function () {
 
     foreach ($grupo->estudiantes as $estudiante) {
         expect($estudiante->consejero->is($docente1))->toBeTrue()
-            ->and($estudiante->pivot->nota)->toBe(85.5);
+            ->and($estudiante->pivot->nota)->toBe(8.5);
     }
 });
 

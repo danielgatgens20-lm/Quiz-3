@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\Curso;
-use App\Models\Docente;
-use App\Models\Estudiante;
 use App\Models\Grupo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,45 +14,6 @@ beforeEach(function () {
         'creditos' => 4,
     ]);
 });
-
-function crearGrupo01(Curso $curso, bool $abierto = false): Grupo
-{
-    return Grupo::create([
-        'curso_id' => $curso->id,
-        'numero_ciclo' => 2,
-        'ano' => 2026,
-        'numero_grupo' => 1,
-        'abierto' => $abierto,
-    ]);
-}
-
-function crearDocente(int $codEmpleado): Docente
-{
-    $docentes = [
-        1001 => ['Ana', 'Mora Vargas'],
-        1002 => ['Luis', 'Rojas Solano'],
-        1003 => ['Carla', 'Jiménez Araya'],
-    ];
-
-    return Docente::create([
-        'cod_empleado' => $codEmpleado,
-        'nombre_empleado' => $docentes[$codEmpleado][0],
-        'apellidos_empleado' => $docentes[$codEmpleado][1],
-    ]);
-}
-
-function matricularEstudiantes(Grupo $grupo, Docente $consejero, int $cantidad): void
-{
-    $estudiantes = Estudiante::factory()
-        ->count($cantidad)
-        ->for($consejero, 'consejero')
-        ->create();
-
-    foreach ($estudiantes as $estudiante) {
-        $grupo->matricular($estudiante);
-    }
-}
-
 
 test('CP-01: registrar un grupo con toda su información y su curso', function () {
     $grupoCreado = crearGrupo01($this->curso, abierto: true);
@@ -103,7 +62,7 @@ test('CP-03: un grupo acepta dos docentes', function () {
         ->and($grupo->docentes->pluck('cod_empleado')->sort()->values()->all())->toBe([1001, 1002])
         ->and($docente1001->grupos->contains($grupo))->toBeTrue();
 
-    $this->assertDatabaseCount('docente_grupo', 2);
+    $this->assertDatabaseCount('grupo_docente', 2);
 });
 
 test('CP-04: un grupo rechaza un tercer docente', function () {
@@ -116,7 +75,7 @@ test('CP-04: un grupo rechaza un tercer docente', function () {
         ->toThrow(DomainException::class);
 
     expect($grupo->docentes()->count())->toBe(2);
-    $this->assertDatabaseMissing('docente_grupo', ['docente_id' => $docente1003->id]);
+    $this->assertDatabaseMissing('grupo_docente', ['docente_id' => $docente1003->id]);
 });
 
 test('CP-05: un grupo con 14 estudiantes no puede abrirse', function () {
